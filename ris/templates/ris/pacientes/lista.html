@@ -1,0 +1,35 @@
+{% extends "ris/base.html" %}
+{% block titulo %}Pacientes{% endblock %}
+{% block contenido %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">Pacientes</h1>
+  <a class="btn btn-primary" href="{% url 'ris:paciente_nuevo' %}">+ Nuevo paciente</a>
+</div>
+
+<form class="row g-2 mb-3" method="get">
+  <div class="col-md-4">
+    <input class="form-control" name="q" value="{{ q }}" placeholder="Buscar por nombre, documento o historia clínica">
+  </div>
+  <div class="col-auto"><button class="btn btn-outline-secondary">Buscar</button></div>
+</form>
+
+<table class="table table-sm table-hover bg-white">
+  <thead class="table-light">
+    <tr><th>Historia clínica</th><th>Paciente</th><th>Documento</th><th>Edad</th><th>Sexo</th><th>Órdenes</th></tr>
+  </thead>
+  <tbody>
+  {% for p in pacientes %}
+    <tr>
+      <td>{{ p.historia_clinica }}</td>
+      <td><a href="{% url 'ris:paciente_detalle' p.pk %}">{{ p.apellidos }}, {{ p.nombres }}</a></td>
+      <td>{{ p.documento }}</td>
+      <td>{{ p.edad }}</td>
+      <td>{{ p.get_sexo_display }}</td>
+      <td>{{ p.num_ordenes }}</td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="6" class="text-muted text-center py-3">No se encontraron pacientes.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

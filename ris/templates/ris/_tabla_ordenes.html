@@ -1,0 +1,30 @@
+<table class="table table-sm table-hover align-middle bg-white">
+  <thead class="table-light">
+    <tr>
+      <th>N.º acceso</th>
+      {% if not ocultar_paciente %}<th>Paciente</th>{% endif %}
+      <th>Estudio</th>
+      <th>Prioridad</th>
+      <th>Sala</th>
+      <th>Programada</th>
+      <th>Estado</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for o in ordenes %}
+    <tr>
+      <td><a href="{% url 'ris:orden_detalle' o.pk %}">{{ o.numero_acceso }}</a></td>
+      {% if not ocultar_paciente %}
+        <td><a href="{% url 'ris:paciente_detalle' o.paciente.pk %}">{{ o.paciente.apellidos }}, {{ o.paciente.nombres }}</a></td>
+      {% endif %}
+      <td>{{ o.procedimiento.nombre }}</td>
+      <td class="prio-{{ o.prioridad }}">{{ o.get_prioridad_display }}</td>
+      <td>{{ o.sala.nombre|default:"—" }}</td>
+      <td>{{ o.fecha_programada|date:"d/m/Y H:i"|default:"—" }}</td>
+      <td><span class="estado estado-{{ o.estado }}">{{ o.get_estado_display }}</span></td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="7" class="text-muted text-center py-3">No hay órdenes.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>

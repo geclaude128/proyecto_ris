@@ -1,0 +1,52 @@
+{% extends "ris/base.html" %}
+{% block titulo %}Informe {{ orden.numero_acceso }}{% endblock %}
+{% block contenido %}
+<h1 class="h3 mb-3">Informe · {{ orden.procedimiento.nombre }}</h1>
+
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="card"><div class="card-body">
+      <form method="post">
+        {% include "ris/_form.html" %}
+        <button class="btn btn-outline-primary" name="guardar">Guardar borrador</button>
+        <button class="btn btn-success" name="firmar"
+                onclick="return confirm('Una vez firmado el informe no podrá modificarse. ¿Continuar?');">
+          Firmar informe
+        </button>
+        <a class="btn btn-link" href="{% url 'ris:orden_detalle' orden.pk %}">Volver</a>
+      </form>
+    </div></div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card mb-3">
+      <div class="card-header">Datos del estudio</div>
+      <div class="card-body small">
+        <strong>{{ orden.paciente.nombre_completo }}</strong><br>
+        {{ orden.paciente.historia_clinica }} · {{ orden.paciente.edad }} años · {{ orden.paciente.get_sexo_display }}<br>
+        <hr>
+        <strong>N.º acceso:</strong> {{ orden.numero_acceso }}<br>
+        <strong>Prioridad:</strong> <span class="prio-{{ orden.prioridad }}">{{ orden.get_prioridad_display }}</span><br>
+        <strong>Solicitante:</strong> {{ orden.medico_solicitante }}<br>
+        <strong>Indicación:</strong> {{ orden.indicacion_clinica }}<br>
+        <strong>Realizado:</strong> {{ orden.fecha_realizacion|date:"d/m/Y H:i" }}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">Estudios previos del paciente</div>
+      <ul class="list-group list-group-flush small">
+        {% for p in previos %}
+          <li class="list-group-item">
+            <a href="{% url 'ris:orden_detalle' p.pk %}">{{ p.procedimiento.nombre }}</a>
+            <span class="text-muted">· {{ p.fecha_realizacion|date:"d/m/Y" }}</span><br>
+            {{ p.informe.conclusion|truncatechars:120 }}
+          </li>
+        {% empty %}
+          <li class="list-group-item text-muted">Sin estudios previos informados.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}

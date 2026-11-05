@@ -1,0 +1,95 @@
+{% extends "ris/base.html" %}
+{% block titulo %}Orden {{ orden.numero_acceso }}{% endblock %}
+{% block contenido %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <h1 class="h3 mb-0">
+    Orden {{ orden.numero_acceso }}
+    <span class="estado estado-{{ orden.estado }} align-middle">{{ orden.get_estado_display }}</span>
+  </h1>
+  <div class="d-flex gap-2">
+    {% if orden.estado == "PROGRAMADA" %}
+      <form method="post" action="{% url 'ris:orden_accion' orden.pk 'iniciar' %}">{% csrf_token %}
+        <button class="btn btn-warning">▶ Iniciar estudio</button>
+      </form>
+    {% elif orden.estado == "EN_CURSO" %}
+      <form method="post" action="{% url 'ris:orden_accion' orden.pk 'completar' %}">{% csrf_token %}
+        <button class="btn btn-success">✔ Marcar como realizado</button>
+      </form>
+    {% elif orden.estado == "REALIZADA" %}
+      <a class="btn btn-primary" href="{% url 'ris:informe_editar' orden.pk %}">
+        {% if informe %}Continuar informe{% else %}Informar estudio{% endif %}
+      </a>
+    {% endif %}
+    {% if orden.puede_cancelarse %}
+      <form method="post" action="{% url 'ris:orden_accion' orden.pk 'cancelar' %}"
+            onsubmit="return confirm('¿Cancelar esta orden?');">{% csrf_token %}
+        <button class="btn btn-outline-danger">Cancelar orden</button>
+      </form>
+    {% endif %}
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-6">
+    <div class="card mb-4">
+      <div class="card-header">Paciente</div>
+      <div class="card-body">
+        <a class="fw-bold" href="{% url 'ris:paciente_detalle' orden.paciente.pk %}">{{ orden.paciente.nombre_completo }}</a><br>
+        {{ orden.paciente.historia_clinica }} · {{ orden.paciente.edad }} años · {{ orden.paciente.get_sexo_display }}
+      </div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-header">Estudio</div>
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-4">Procedimiento</dt><dd class="col-sm-8">{{ orden.procedimiento.nombre }} ({{ orden.procedimiento.get_modalidad_display }})</dd>
+          <dt class="col-sm-4">Prioridad</dt><dd class="col-sm-8 prio-{{ orden.prioridad }}">{{ orden.get_prioridad_display }}</dd>
+          <dt class="col-sm-4">Solicitante</dt><dd class="col-sm-8">{{ orden.medico_solicitante }}</dd>
+          <dt class="col-sm-4">Indicación</dt><dd class="col-sm-8">{{ orden.indicacion_clinica|linebreaksbr }}</dd>
+          <dt class="col-sm-4">Solicitada</dt><dd class="col-sm-8">{{ orden.creado|date:"d/m/Y H:i" }}</dd>
+          <dt class="col-sm-4">Sala</dt><dd class="col-sm-8">{{ orden.sala.nombre|default:"—" }}</dd>
+          <dt class="col-sm-4">Programada</dt><dd class="col-sm-8">{{ orden.fecha_programada|date:"d/m/Y H:i"|default:"—" }}</dd>
+          <dt class="col-sm-4">Realizada</dt><dd class="col-sm-8">{{ orden.fecha_realizacion|date:"d/m/Y H:i"|default:"—" }}</dd>
+          <dt class="col-sm-4">Técnico</dt><dd class="col-sm-8">{{ orden.tecnico.get_full_name|default:orden.tecnico.username|default:"—" }}</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    {% if programar_form %}
+      <div class="card mb-4">
+        <div class="card-header">{% if orden.estado == "PROGRAMADA" %}Reprogramar{% else %}Programar cita{% endif %}</div>
+        <div class="card-body">
+          <form method="post" action="{% url 'ris:orden_programar' orden.pk %}">
+            {% include "ris/_form.html" with form=programar_form %}
+            <button class="btn btn-primary">Guardar programación</button>
+          </form>
+        </div>
+      </div>
+    {% endif %}
+
+    {% if informe %}
+      <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between">
+          <span>Informe radiológico</span>
+          <span class="badge {% if informe.estado == 'FIRMADO' %}bg-success{% else %}bg-secondary{% endif %}">{{ informe.get_estado_display }}</span>
+        </div>
+        <div class="card-body">
+          <h3 class="h6">Hallazgos</h3>
+          <p class="informe-texto">{{ informe.hallazgos }}</p>
+          <h3 class="h6">Conclusión</h3>
+          <p class="informe-texto fw-semibold">{{ informe.conclusion }}</p>
+          {% if informe.estado == "FIRMADO" %}
+            <p class="text-muted small mb-0">
+              Firmado por {{ informe.radiologo.get_full_name|default:informe.radiologo.username }}
+              el {{ informe.fecha_firma|date:"d/m/Y H:i" }}
+            </p>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

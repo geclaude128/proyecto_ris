@@ -1,0 +1,12 @@
+{% extends "ris/base.html" %}
+{% block titulo %}{% if paciente %}Editar paciente{% else %}Nuevo paciente{% endif %}{% endblock %}
+{% block contenido %}
+<h1 class="h3 mb-3">{% if paciente %}Editar {{ paciente.nombre_completo }}{% else %}Nuevo paciente{% endif %}</h1>
+<div class="card" style="max-width: 640px"><div class="card-body">
+  <form method="post">
+    {% include "ris/_form.html" %}
+    <button class="btn btn-primary">Guardar</button>
+    <a class="btn btn-link" href="{% if paciente %}{% url 'ris:paciente_detalle' paciente.pk %}{% else %}{% url 'ris:pacientes' %}{% endif %}">Cancelar</a>
+  </form>
+</div></div>
+{% endblock %}

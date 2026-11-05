@@ -1,0 +1,12 @@
+{% extends "ris/base.html" %}
+{% block titulo %}Nueva orden{% endblock %}
+{% block contenido %}
+<h1 class="h3 mb-3">Nueva orden de estudio</h1>
+<div class="card" style="max-width: 720px"><div class="card-body">
+  <form method="post">
+    {% include "ris/_form.html" %}
+    <button class="btn btn-primary">Crear orden</button>
+    <a class="btn btn-link" href="{% url 'ris:ordenes' %}">Cancelar</a>
+  </form>
+</div></div>
+{% endblock %}

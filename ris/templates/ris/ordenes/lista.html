@@ -1,0 +1,33 @@
+{% extends "ris/base.html" %}
+{% block titulo %}Órdenes{% endblock %}
+{% block contenido %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">Órdenes de estudio</h1>
+  <a class="btn btn-primary" href="{% url 'ris:orden_nueva' %}">+ Nueva orden</a>
+</div>
+
+<form class="row g-2 mb-3" method="get">
+  <div class="col-md-3">
+    <input class="form-control" name="q" value="{{ filtro.q }}" placeholder="N.º acceso o paciente">
+  </div>
+  <div class="col-md-3">
+    <select class="form-select" name="estado">
+      <option value="">Todos los estados</option>
+      {% for valor, etiqueta in estados %}
+        <option value="{{ valor }}" {% if valor == filtro.estado %}selected{% endif %}>{{ etiqueta }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-md-2">
+    <select class="form-select" name="modalidad">
+      <option value="">Todas las modalidades</option>
+      {% for valor, etiqueta in modalidades %}
+        <option value="{{ valor }}" {% if valor == filtro.modalidad %}selected{% endif %}>{{ etiqueta }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-auto"><button class="btn btn-outline-secondary">Filtrar</button></div>
+</form>
+
+{% include "ris/_tabla_ordenes.html" %}
+{% endblock %}

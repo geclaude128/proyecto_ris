@@ -1,0 +1,52 @@
+{% extends "ris/base.html" %}
+{% block titulo %}Lista de trabajo{% endblock %}
+{% block contenido %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <h1 class="h3 mb-0">Lista de trabajo · {{ fecha|date:"l d/m/Y" }}</h1>
+  <form class="d-flex gap-2" method="get">
+    <a class="btn btn-outline-secondary" href="?fecha={{ anterior|date:'Y-m-d' }}&modalidad={{ modalidad }}">←</a>
+    <input class="form-control" type="date" name="fecha" value="{{ fecha|date:'Y-m-d' }}">
+    <a class="btn btn-outline-secondary" href="?fecha={{ siguiente|date:'Y-m-d' }}&modalidad={{ modalidad }}">→</a>
+    <select class="form-select" name="modalidad">
+      <option value="">Todas</option>
+      {% for valor, etiqueta in modalidades %}
+        <option value="{{ valor }}" {% if valor == modalidad %}selected{% endif %}>{{ etiqueta }}</option>
+      {% endfor %}
+    </select>
+    <button class="btn btn-outline-secondary">Ver</button>
+  </form>
+</div>
+
+<table class="table table-hover align-middle bg-white">
+  <thead class="table-light">
+    <tr><th>Hora</th><th>Sala</th><th>Paciente</th><th>Estudio</th><th>Prioridad</th><th>Estado</th><th></th></tr>
+  </thead>
+  <tbody>
+  {% for o in ordenes %}
+    <tr>
+      <td class="fw-bold">{{ o.fecha_programada|time:"H:i" }}</td>
+      <td>{{ o.sala.nombre }}</td>
+      <td>{{ o.paciente.apellidos }}, {{ o.paciente.nombres }}<br><small class="text-muted">{{ o.paciente.historia_clinica }} · {{ o.paciente.edad }} años</small></td>
+      <td><a href="{% url 'ris:orden_detalle' o.pk %}">{{ o.procedimiento.nombre }}</a><br><small class="text-muted">{{ o.numero_acceso }}</small></td>
+      <td class="prio-{{ o.prioridad }}">{{ o.get_prioridad_display }}</td>
+      <td><span class="estado estado-{{ o.estado }}">{{ o.get_estado_display }}</span></td>
+      <td class="text-end">
+        {% if o.estado == "PROGRAMADA" %}
+          <form method="post" action="{% url 'ris:orden_accion' o.pk 'iniciar' %}">{% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <button class="btn btn-sm btn-warning">Iniciar</button>
+          </form>
+        {% elif o.estado == "EN_CURSO" %}
+          <form method="post" action="{% url 'ris:orden_accion' o.pk 'completar' %}">{% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <button class="btn btn-sm btn-success">Completar</button>
+          </form>
+        {% endif %}
+      </td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="7" class="text-muted text-center py-3">No hay estudios programados para este día.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

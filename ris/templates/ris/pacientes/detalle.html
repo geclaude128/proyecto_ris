@@ -1,0 +1,24 @@
+{% extends "ris/base.html" %}
+{% block titulo %}{{ paciente.nombre_completo }}{% endblock %}
+{% block contenido %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">{{ paciente.nombre_completo }} <small class="text-muted">{{ paciente.historia_clinica }}</small></h1>
+  <div class="d-flex gap-2">
+    <a class="btn btn-outline-secondary" href="{% url 'ris:paciente_editar' paciente.pk %}">Editar</a>
+    <a class="btn btn-primary" href="{% url 'ris:orden_nueva' %}?paciente={{ paciente.pk }}">+ Nueva orden</a>
+  </div>
+</div>
+
+<div class="card mb-4"><div class="card-body">
+  <dl class="row mb-0">
+    <dt class="col-sm-2">Documento</dt><dd class="col-sm-4">{{ paciente.documento }}</dd>
+    <dt class="col-sm-2">Nacimiento</dt><dd class="col-sm-4">{{ paciente.fecha_nacimiento|date:"d/m/Y" }} ({{ paciente.edad }} años)</dd>
+    <dt class="col-sm-2">Sexo</dt><dd class="col-sm-4">{{ paciente.get_sexo_display }}</dd>
+    <dt class="col-sm-2">Teléfono</dt><dd class="col-sm-4">{{ paciente.telefono|default:"—" }}</dd>
+    <dt class="col-sm-2">Email</dt><dd class="col-sm-4">{{ paciente.email|default:"—" }}</dd>
+  </dl>
+</div></div>
+
+<h2 class="h5">Historial de estudios</h2>
+{% include "ris/_tabla_ordenes.html" with ordenes=ordenes ocultar_paciente=True %}
+{% endblock %}

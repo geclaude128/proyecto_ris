@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}Inicio{% endblock %} · RIS Demo</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .estado { display:inline-block; padding:.2em .6em; border-radius:.4em; color:#fff; font-size:.8em; font-weight:600; white-space:nowrap; }
+    .estado-SOLICITADA { background:#6c757d; }
+    .estado-PROGRAMADA { background:#0d6efd; }
+    .estado-EN_CURSO   { background:#fd7e14; }
+    .estado-REALIZADA  { background:#6f42c1; }
+    .estado-INFORMADA  { background:#198754; }
+    .estado-CANCELADA  { background:#dc3545; }
+    .prio-URGENTE { color:#fd7e14; font-weight:700; }
+    .prio-STAT    { color:#dc3545; font-weight:700; }
+    .informe-texto { white-space:pre-wrap; }
+  </style>
+</head>
+<body class="bg-light">
+<nav class="navbar navbar-expand navbar-dark bg-dark mb-4">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="{% url 'ris:dashboard' %}">🩻 RIS Demo</a>
+    {% if user.is_authenticated %}
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item"><a class="nav-link" href="{% url 'ris:pacientes' %}">Pacientes</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'ris:ordenes' %}">Órdenes</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'ris:worklist' %}">Lista de trabajo</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'ris:informes' %}">Informes pendientes</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'admin:index' %}">Administración</a></li>
+      </ul>
+      <span class="navbar-text me-3">{{ user.get_full_name|default:user.username }}</span>
+      <form method="post" action="{% url 'admin:logout' %}">
+        {% csrf_token %}
+        <button class="btn btn-outline-light btn-sm">Salir</button>
+      </form>
+    {% endif %}
+  </div>
+</nav>
+
+<main class="container-fluid px-4 pb-5">
+  {% for message in messages %}
+    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible">
+      {{ message }}
+    </div>
+  {% endfor %}
+  {% block contenido %}{% endblock %}
+</main>
+</body>
+</html>
